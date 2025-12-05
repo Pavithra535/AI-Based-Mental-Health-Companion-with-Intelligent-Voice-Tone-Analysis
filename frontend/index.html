@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Mental Health Companion</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="app-header">
+        <h1>Mental Health Companion</h1>
+        <p class="subtitle">
+          A supportive space to reflect on your thoughts and feelings.
+        </p>
+      </header>
+
+      <main class="app-main">
+        <section class="chat-section" id="chat-section">
+          <div id="chat-log" class="chat-log"></div>
+          <form id="chat-form" class="chat-input-row">
+            <input
+              id="chat-input"
+              type="text"
+              placeholder="Share what’s on your mind..."
+              autocomplete="off"
+            />
+            <button type="submit">Send</button>
+          </form>
+          <div class="disclaimer">
+            This companion is not a substitute for professional help or emergency
+            services. If you're in crisis or thinking about self‑harm, please
+            contact your local emergency number or a crisis hotline immediately.
+          </div>
+        </section>
+
+        <section class="voice-section" id="voice-section">
+          <h2>Voice Mood Check</h2>
+          <p class="section-help">
+            Record a short message (10–20 seconds). I’ll listen for energy and
+            pace to guess your mood.
+          </p>
+          <div class="voice-controls">
+            <button id="record-btn">Start Recording</button>
+            <span id="record-status" class="record-status">Idle</span>
+          </div>
+          <div id="voice-result" class="voice-result"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+  </html>
+
+
+
+
+
+

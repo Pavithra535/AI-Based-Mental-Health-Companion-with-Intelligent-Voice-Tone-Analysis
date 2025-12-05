@@ -1,0 +1,206 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top left, #2a3b5f 0, #050711 45%, #020308 100%);
+  color: #f7f9fc;
+}
+
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.app-header h1 {
+  margin: 0 0 8px;
+  font-weight: 650;
+  letter-spacing: 0.03em;
+}
+
+.subtitle {
+  margin: 0;
+  color: #c2cadc;
+  font-size: 0.95rem;
+}
+
+.app-main {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .app-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chat-section,
+.voice-section {
+  background: rgba(10, 17, 35, 0.92);
+  border-radius: 18px;
+  border: 1px solid rgba(131, 150, 255, 0.25);
+  box-shadow: 0 18px 45px rgba(2, 10, 40, 0.9);
+  padding: 18px 18px 16px;
+}
+
+.chat-log {
+  height: 420px;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-bottom: 12px;
+}
+
+.message {
+  margin-bottom: 10px;
+  display: flex;
+}
+
+.message-inner {
+  max-width: 92%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.message.user {
+  justify-content: flex-end;
+}
+
+.message.user .message-inner {
+  background: linear-gradient(135deg, #4e7cff, #8a5dff);
+  color: #fff;
+  border-bottom-right-radius: 2px;
+}
+
+.message.bot .message-inner {
+  background: rgba(19, 28, 60, 0.95);
+  border: 1px solid rgba(120, 142, 255, 0.4);
+  border-bottom-left-radius: 2px;
+}
+
+.meta {
+  font-size: 0.75rem;
+  color: #8f9ac4;
+  margin-bottom: 4px;
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.chat-input-row input {
+  flex: 1;
+  padding: 10px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(126, 143, 210, 0.7);
+  background: rgba(6, 10, 28, 0.95);
+  color: #f5f7ff;
+  outline: none;
+}
+
+.chat-input-row input::placeholder {
+  color: #6e7aa8;
+}
+
+.chat-input-row button {
+  border-radius: 999px;
+  border: none;
+  padding: 0 18px;
+  background: linear-gradient(135deg, #5876ff, #a05aff);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.12s ease, opacity 0.12s;
+  box-shadow: 0 10px 22px rgba(34, 78, 255, 0.55);
+}
+
+.chat-input-row button:disabled {
+  opacity: 0.55;
+  cursor: default;
+  box-shadow: none;
+}
+
+.chat-input-row button:not(:disabled):active {
+  transform: translateY(1px);
+  box-shadow: 0 6px 16px rgba(34, 78, 255, 0.6);
+}
+
+.disclaimer {
+  margin-top: 10px;
+  font-size: 0.75rem;
+  color: #949fc5;
+  line-height: 1.4;
+}
+
+.voice-section h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+.section-help {
+  margin-top: 2px;
+  font-size: 0.86rem;
+  color: #a3aed6;
+}
+
+.voice-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  margin-bottom: 8px;
+}
+
+#record-btn {
+  border-radius: 999px;
+  border: none;
+  padding: 7px 16px;
+  background: radial-gradient(circle at 10% 0, #e85f7a, #b734ff);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(255, 84, 142, 0.55);
+  transition: transform 0.08s ease, box-shadow 0.12s ease, opacity 0.12s;
+}
+
+#record-btn.recording {
+  background: radial-gradient(circle at 10% 0, #ff3b5c, #ff9a62);
+}
+
+#record-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 6px 16px rgba(255, 84, 142, 0.45);
+}
+
+.record-status {
+  font-size: 0.85rem;
+  color: #c1c9ef;
+}
+
+.voice-result {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: #d6defa;
+  line-height: 1.45;
+}
+
+
+
+
+
+

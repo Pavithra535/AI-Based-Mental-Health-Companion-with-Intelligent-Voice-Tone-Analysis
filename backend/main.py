@@ -59,6 +59,125 @@ def classify_mood_from_text(text: str) -> tuple[str, float]:
     return mood, compound
 
 
+def extract_context_info(text: str, conversation_history: Optional[List[dict]] = None) -> dict:
+    """
+    Extract specific details from the message and conversation history
+    to create more personalized responses.
+    """
+    lowered = text.lower()
+    context = {
+        "mentioned_people": [],
+        "specific_problems": [],
+        "time_references": [],
+        "previous_topics": [],
+        "recurring_themes": [],
+        "intensity_indicators": []
+    }
+    
+    # Extract people mentioned
+    people_keywords = ["my partner", "my boyfriend", "my girlfriend", "my spouse", "my friend", 
+                       "my boss", "my colleague", "my family", "my mom", "my dad", "my sister", 
+                       "my brother", "my parent"]
+    for keyword in people_keywords:
+        if keyword in lowered:
+            context["mentioned_people"].append(keyword.replace("my ", ""))
+    
+    # Extract time references
+    time_words = ["today", "yesterday", "this week", "lately", "recently", "always", "never", 
+                  "for months", "for weeks", "for years", "since"]
+    for word in time_words:
+        if word in lowered:
+            context["time_references"].append(word)
+    
+    # Extract intensity indicators
+    intensity_words = ["really", "extremely", "very", "so much", "incredibly", "completely", 
+                      "totally", "absolutely", "terribly", "awfully"]
+    intensity_count = sum(1 for word in intensity_words if word in lowered)
+    context["intensity_indicators"] = "high" if intensity_count >= 2 else "moderate" if intensity_count == 1 else "low"
+    
+    # Analyze conversation history for patterns
+    if conversation_history:
+        user_messages = [msg["content"].lower() for msg in conversation_history if msg.get("role") == "user"]
+        all_text = " ".join(user_messages + [lowered])
+        
+        # Find recurring themes
+        themes = {
+            "work": ["work", "job", "boss", "colleague", "deadline", "office"],
+            "relationships": ["partner", "friend", "family", "relationship", "argument"],
+            "health": ["sleep", "tired", "sick", "pain", "headache"],
+            "anxiety": ["anxious", "worried", "nervous", "panic", "stressed"],
+            "depression": ["sad", "depressed", "hopeless", "empty", "numb"]
+        }
+        
+        for theme, keywords in themes.items():
+            if sum(1 for kw in keywords if kw in all_text) >= 2:
+                context["recurring_themes"].append(theme)
+        
+        # Get previous topics (last 3 user messages)
+        context["previous_topics"] = user_messages[-3:] if len(user_messages) >= 3 else user_messages
+    
+    return context
+
+
+def create_personalized_response(text: str, mood: str, context: dict, base_responses: List[str]) -> str:
+    """
+    Take a base response and personalize it based on extracted context.
+    """
+    response = random.choice(base_responses)
+    lowered = text.lower()
+    
+    # Add personalization based on context
+    personalizations = []
+    
+    # Reference specific people mentioned
+    if context["mentioned_people"]:
+        person = context["mentioned_people"][0]
+        if "partner" in person or "boyfriend" in person or "girlfriend" in person or "spouse" in person:
+            personalizations.append(f" When it comes to your {person},")
+        elif "boss" in person or "colleague" in person:
+            personalizations.append(f" In your work relationship with your {person},")
+        elif "friend" in person or "family" in person:
+            personalizations.append(f" With your {person},")
+    
+    # Reference time if mentioned
+    if context["time_references"]:
+        time_ref = context["time_references"][0]
+        if time_ref in ["lately", "recently", "this week"]:
+            personalizations.append(" I notice this has been coming up more recently.")
+        elif time_ref in ["always", "for months", "for years"]:
+            personalizations.append(" It sounds like this has been a long-standing challenge for you.")
+    
+    # Reference recurring themes
+    if len(context["recurring_themes"]) > 0:
+        theme = context["recurring_themes"][0]
+        if theme == "work" and "work" not in lowered:
+            personalizations.append(" I'm also noticing work stress has been a recurring theme in our conversations.")
+        elif theme == "relationships" and "relationship" not in lowered:
+            personalizations.append(" Relationship challenges seem to be something you've been navigating.")
+    
+    # Reference previous conversation if relevant
+    if context["previous_topics"] and len(context["previous_topics"]) > 0:
+        prev_topic = context["previous_topics"][-1]
+        # Check if current message relates to previous topic
+        if any(word in lowered for word in prev_topic.split()[:3]):
+            personalizations.append(" Building on what you shared earlier,")
+    
+    # Add intensity acknowledgment
+    if context["intensity_indicators"] == "high":
+        personalizations.append(" I can really feel the intensity of what you're experiencing.")
+    
+    # If we have personalizations, try to weave them in naturally
+    if personalizations and random.random() > 0.3:  # 70% chance to add personalization
+        # Insert personalization at a natural break point
+        if ". " in response:
+            parts = response.split(". ", 1)
+            if len(parts) == 2:
+                personalization = " ".join(personalizations[:2])  # Limit to 2 to avoid clutter
+                response = parts[0] + ". " + personalization + " " + parts[1]
+    
+    return response
+
+
 def therapeutic_reply(text: str, mood: str, conversation_history: Optional[List[dict]] = None) -> str:
     """
     Enhanced therapeutic response system with:
@@ -66,8 +185,39 @@ def therapeutic_reply(text: str, mood: str, conversation_history: Optional[List[
     - Practical tips and actionable suggestions
     - Natural, human-like conversation
     - Context awareness from conversation history
+    - Personalized responses based on extracted details
     """
     lowered = text.lower()
+    
+    # Extract context information
+    context = extract_context_info(text, conversation_history)
+    
+    # Check if this is a follow-up or continuation
+    continuation_phrases = ["yes", "no", "maybe", "i don't know", "i think", "i feel like", 
+                           "that's true", "exactly", "right", "also", "and", "but"]
+    is_continuation = any(phrase in lowered[:20] for phrase in continuation_phrases) and conversation_history
+    
+    # Expanded keyword detection with more nuanced patterns
+    anxiety_words = ["anxious", "nervous", "worried", "panic", "overthinking", "stressed", "overwhelmed", 
+                     "racing thoughts", "can't stop thinking", "fear", "scared", "uneasy", "restless",
+                     "heart racing", "can't breathe", "tight chest", "dizzy", "shaking"]
+    lonely_words = ["lonely", "alone", "isolated", "nobody", "left out", "disconnected", "empty", 
+                    "no one understands", "by myself", "abandoned", "unwanted", "no friends",
+                    "everyone else", "no one cares"]
+    anger_words = ["angry", "mad", "furious", "rage", "irritated", "frustrated", "annoyed", "resentful",
+                   "bitter", "hostile", "livid", "pissed", "hate", "can't stand"]
+    sad_words = ["sad", "depressed", "down", "hopeless", "tired of", "exhausted", "empty", "numb",
+                 "worthless", "guilty", "shame", "tears", "crying", "can't stop crying", "melancholy",
+                 "nothing matters", "what's the point", "no point", "give up"]
+    sleep_words = ["can't sleep", "insomnia", "tired", "exhausted", "restless", "wake up", "sleeping",
+                   "waking up", "nightmares", "sleep schedule"]
+    work_words = ["work", "job", "boss", "colleague", "deadline", "pressure", "overwhelmed at work",
+                  "workplace", "coworker", "manager", "project", "meeting"]
+    relationship_words = ["partner", "boyfriend", "girlfriend", "spouse", "friend", "family", "relationship",
+                         "breakup", "divorce", "argument", "fight", "conflict", "cheating", "trust",
+                         "communication", "misunderstand"]
+    self_worth_words = ["worthless", "not good enough", "failure", "loser", "stupid", "ugly", 
+                       "nobody likes me", "everyone hates me", "i'm a burden"]
     
     # Expanded keyword detection
     anxiety_words = ["anxious", "nervous", "worried", "panic", "overthinking", "stressed", "overwhelmed", 
@@ -82,6 +232,49 @@ def therapeutic_reply(text: str, mood: str, conversation_history: Optional[List[
     work_words = ["work", "job", "boss", "colleague", "deadline", "pressure", "overwhelmed at work"]
     relationship_words = ["partner", "boyfriend", "girlfriend", "spouse", "friend", "family", "relationship",
                          "breakup", "divorce", "argument", "fight", "conflict"]
+    
+    # Handle continuation responses first
+    if is_continuation and conversation_history:
+        # Get the last bot response to reference it
+        last_bot_msg = None
+        for msg in reversed(conversation_history):
+            if msg.get("role") == "bot":
+                last_bot_msg = msg.get("content", "")
+                break
+        
+        if last_bot_msg:
+            # Create follow-up responses that acknowledge the continuation
+            follow_ups = [
+                f"I appreciate you sharing more about that. {last_bot_msg[:50]}... What else comes up for you as you think about it?",
+                "Thank you for going deeper with that. I'm curious—what's the hardest part of what you just described?",
+                "I hear you. Building on what we were discussing, what would it feel like if things were different?",
+                "Thank you for continuing to explore this. What do you notice in your body as you talk about it?",
+            ]
+            if random.random() > 0.5:  # 50% chance to use follow-up
+                return random.choice(follow_ups)
+    
+    # Check for self-worth issues (high priority)
+    if any(word in lowered for word in self_worth_words):
+        responses = [
+            "I want to pause here for a moment. When you say things like that about yourself, I want you to know those are thoughts, not facts. "
+            "Your brain might be telling you these things, but that doesn't make them true. "
+            "Here's something to try: write down three things you've done recently that required effort or courage, no matter how small. "
+            "Also, consider: would you say these things to a close friend who was struggling? Probably not. Try offering yourself that same compassion. "
+            "What's one thing you've done today, even if it's tiny, that shows you're trying?",
+            
+            "Those thoughts about yourself are really painful, and I'm sorry you're experiencing them. But I want you to know: you are not worthless. "
+            "Depression and low self-esteem lie to us. They make us believe things that aren't true. "
+            "Try this exercise: write a letter to yourself from the perspective of someone who loves you unconditionally. What would they say? "
+            "Also, consider talking to a therapist about these thoughts—they can help you challenge these beliefs. "
+            "When did you first start feeling this way about yourself?",
+            
+            "I hear how much pain you're in, and I want you to know that your worth isn't determined by your thoughts or feelings. "
+            "You matter, simply because you exist. You don't have to earn your worth—you already have it. "
+            "Here's a practical step: create a 'compassionate self' voice. When you have a negative thought about yourself, "
+            "pause and ask: 'What would I say to a friend who felt this way?' Then say that to yourself. "
+            "What's one thing you could do right now that would be an act of self-compassion?",
+        ]
+        return create_personalized_response(text, mood, context, responses)
     
     # Check for specific emotional states with many varied responses
     if any(word in lowered for word in anxiety_words):
@@ -145,8 +338,18 @@ def therapeutic_reply(text: str, mood: str, conversation_history: Optional[List[
             "or attend one local event. Small steps build momentum. "
             "Also, consider journaling about what kind of relationships you want—what qualities matter to you in connection? "
             "What would meaningful connection look like for you right now?",
+            
+            # Additional personalized loneliness responses
+            ("Loneliness can feel like a void—especially when it's been going on for a while. " 
+             if 'for' in ' '.join(context['time_references']) 
+             else "Loneliness can feel like a void. ") +
+            "But here's something important: feeling lonely doesn't mean you're unlovable or that something is wrong with you. "
+            "It means you're human and you need connection—which is completely normal and healthy. "
+            "Try this: make a list of people you've lost touch with but would like to reconnect with. "
+            "Then, pick one and reach out this week—even if it's been years. Most people appreciate hearing from someone. "
+            "What's one relationship you'd like to nurture more?",
         ]
-        return random.choice(responses)
+        return create_personalized_response(text, mood, context, responses)
     
     if any(word in lowered for word in anger_words):
         responses = [
@@ -171,8 +374,15 @@ def therapeutic_reply(text: str, mood: str, conversation_history: Optional[List[
             "Sometimes you need space, sometimes you need to be heard, sometimes you need an apology. "
             "Also, consider what boundaries you might need to set to prevent this from happening again. "
             "What would help you feel more respected or safe in this situation?",
+            
+            # Additional personalized anger responses
+            f"Anger{' can be really intense' if context['intensity_indicators'] == 'high' else ''}, and it's telling you something important. "
+            "The question is: what is it trying to tell you? Often, anger is a signal that a boundary has been crossed or a need isn't being met. "
+            "Try this: instead of focusing on what the other person did wrong, focus on what you need. "
+            "For example, instead of 'They never listen,' try 'I need to feel heard.' This shifts from blame to expressing needs. "
+            "What need of yours isn't being met in this situation?",
         ]
-        return random.choice(responses)
+        return create_personalized_response(text, mood, context, responses)
     
     if any(word in lowered for word in sad_words):
         responses = [
@@ -205,8 +415,22 @@ def therapeutic_reply(text: str, mood: str, conversation_history: Optional[List[
             "Here's something practical: try the 'opposite action' technique. When depression tells you to isolate, reach out. When it says to stay in bed, get up and do one thing. "
             "When it says nothing matters, do one thing that used to bring you joy, even if you don't feel like it. "
             "What's one thing that used to make you feel even slightly better that you could try today?",
+            
+            # Additional personalized sadness/depression responses
+            f"Depression{' can feel overwhelming' if context['intensity_indicators'] == 'high' else ''}, and I want you to know that what you're feeling is valid. "
+            "It's also treatable. You don't have to feel this way forever. "
+            "Here's something that helps many people: create a 'depression care plan' with your therapist or doctor. "
+            "This includes: warning signs to watch for, coping strategies that work for you, people to reach out to, and when to seek professional help. "
+            "Also, consider if medication might help—depression is a medical condition, and sometimes medication is necessary, just like with any other illness. "
+            "Have you talked to a doctor or therapist about how you're feeling?",
+            
+            "When depression is really heavy, it can make you feel like nothing will ever change. But depression lies—it's not permanent. "
+            "Here's a technique that helps: the 'half-smile' practice. Even when you don't feel like it, try a gentle half-smile. "
+            "Research shows that facial expressions can actually influence our mood. Also, try 'opposite action'—when depression says 'stay in bed,' "
+            "get up and do one thing. When it says 'isolate,' reach out to one person. "
+            "What's one small action you could take right now that would be the opposite of what depression is telling you to do?",
         ]
-        return random.choice(responses)
+        return create_personalized_response(text, mood, context, responses)
     
     if any(word in lowered for word in sleep_words):
         responses = [
@@ -221,8 +445,16 @@ def therapeutic_reply(text: str, mood: str, conversation_history: Optional[List[
             "Don't stay in bed tossing and turning—that trains your brain to associate bed with wakefulness. "
             "Also, try progressive muscle relaxation: tense and release each muscle group from toes to head. "
             "What do you think is keeping you awake—racing thoughts, physical discomfort, or something else?",
+            
+            # Additional personalized sleep responses
+            "Sleep and mental health are deeply connected. When you're not sleeping well, everything feels harder. "
+            "Here's a comprehensive sleep hygiene approach: First, create a wind-down routine 1-2 hours before bed—dim lights, no screens, "
+            "maybe reading or gentle music. Second, keep your bedroom for sleep and intimacy only—no work, no phone scrolling. "
+            "Third, if you wake up in the night and can't fall back asleep after 20 minutes, get up and do something calming until you feel sleepy. "
+            "Fourth, consider if anxiety or depression might be contributing—treating the underlying mental health issue often improves sleep. "
+            "What do you think is the main thing disrupting your sleep?",
         ]
-        return random.choice(responses)
+        return create_personalized_response(text, mood, context, responses)
     
     if any(word in lowered for word in work_words):
         responses = [
@@ -236,8 +468,17 @@ def therapeutic_reply(text: str, mood: str, conversation_history: Optional[List[
             "Try this: at the end of each workday, write down three things you accomplished (even small ones). "
             "This helps counter the feeling that you're not productive enough. Also, consider talking to your supervisor about workload if it's unmanageable. "
             "What would make work feel more sustainable for you?",
+            
+            # Additional personalized work responses
+            f"Work stress{' can be really overwhelming' if context['intensity_indicators'] == 'high' else ''}, especially when it feels like there's no end in sight. "
+            "Here's a strategic approach: First, identify what's actually in your control versus what's not. "
+            "Focus your energy on what you can influence. Second, practice 'time blocking'—schedule specific times for specific tasks, "
+            "and include breaks. Third, learn to say 'no' or 'not right now' when your plate is full. "
+            "Fourth, consider if this is a temporary busy period or a chronic issue—if it's chronic, you might need to have a conversation with your supervisor "
+            "or consider if this job is the right fit long-term. "
+            "What's one boundary you could set at work that would help you feel less overwhelmed?",
         ]
-        return random.choice(responses)
+        return create_personalized_response(text, mood, context, responses)
     
     if any(word in lowered for word in relationship_words):
         responses = [
@@ -251,8 +492,17 @@ def therapeutic_reply(text: str, mood: str, conversation_history: Optional[List[
             "Try this: write down what you want to say before having a difficult conversation. This helps you stay focused and calm. "
             "Also, consider couples or family therapy if things feel too stuck—sometimes a neutral third party can help. "
             "What would a healthy resolution look like for you?",
+            
+            # Additional personalized relationship responses
+            f"Relationship challenges{' can be really painful' if context['intensity_indicators'] == 'high' else ''}, especially when it's with someone you care about. "
+            "Here's a framework that helps: Focus on understanding before being understood. Try to see the situation from their perspective, "
+            "even if you don't agree. Use 'I feel' statements: 'I feel hurt when...' instead of 'You always...' "
+            "Also, identify what you need from this relationship—is it more communication, respect, quality time, or something else? "
+            "Then, express that need clearly. Sometimes relationships need professional help—couples therapy isn't just for crises, "
+            "it's a tool for improving communication and connection. "
+            "What's the core need that isn't being met in this relationship?",
         ]
-        return random.choice(responses)
+        return create_personalized_response(text, mood, context, responses)
     
     # Mood-based responses with more variety
     if mood in ("very positive", "positive"):
@@ -271,8 +521,16 @@ def therapeutic_reply(text: str, mood: str, conversation_history: Optional[List[
             "Here's a tip: share your positive experiences with someone you trust. Sharing joy multiplies it. "
             "Also, consider what habits or practices have been supporting your wellbeing—how can you keep those going? "
             "What's one thing you could do today to continue nurturing this positive energy?",
+            
+            # Additional personalized positive responses
+            "I'm genuinely happy to hear you're experiencing some positive moments. These moments are important—they're evidence that things can feel good. "
+            "Here's something powerful: practice 'savoring.' When you notice yourself feeling good, really lean into it. "
+            "Notice what it feels like in your body. What thoughts are present? What's happening around you? "
+            "Savoring positive experiences actually makes them last longer and helps build resilience for harder times. "
+            "Also, consider what contributed to this positive feeling—how can you create more of those conditions? "
+            "What's one thing you could do to build on this positive energy?",
         ]
-        return random.choice(responses)
+        return create_personalized_response(text, mood, context, responses)
     
     if mood in ("negative", "very negative"):
         responses = [
@@ -290,8 +548,18 @@ def therapeutic_reply(text: str, mood: str, conversation_history: Optional[List[
             "Try this: practice self-compassion. Talk to yourself like you would talk to a good friend who's struggling. "
             "You wouldn't tell them they're weak or that they should just get over it—offer yourself the same kindness. "
             "What do you need most right now? Is it support, rest, understanding, or something else?",
+            
+            # Additional personalized negative responses
+            ("When things feel really heavy—especially when it's been going on for a while—" 
+             if 'for' in ' '.join(context['time_references']) 
+             else "When things feel really heavy—") +
+            "it can be hard to see a way forward. But I want you to know: this feeling is temporary, even when it doesn't feel that way. "
+            "Here's a technique: break everything down into the smallest possible steps. Don't think about solving everything—just the next right thing. "
+            "It might be: drink water, take a shower, call one person, or step outside for 5 minutes. "
+            "Small steps forward still count. Also, consider: what's one thing that would make today just 5% more bearable? "
+            "Sometimes 5% is enough to get through the day. What's that one thing for you?",
         ]
-        return random.choice(responses)
+        return create_personalized_response(text, mood, context, responses)
     
     # Neutral/general responses with more variety
     responses = [
@@ -314,8 +582,15 @@ def therapeutic_reply(text: str, mood: str, conversation_history: Optional[List[
         "I'm listening, and I hear you. Sometimes we just need to be heard, without judgment or advice. "
         "But I'm also curious—what would help you feel better right now? Is it someone to listen, practical suggestions, "
         "or maybe just the space to process what you're feeling?",
+        
+        # Additional context-aware neutral responses
+        f"Thank you for sharing this{'—I can hear how important this is to you' if context['intensity_indicators'] == 'high' else ''}. "
+        "Sometimes the act of putting our thoughts and feelings into words helps us understand them better. "
+        "I'm curious: as you read back what you wrote, what stands out to you? What feels most significant? "
+        "Also, what do you notice in your body as you talk about this? Our bodies often know things before our minds do. "
+        "What would it feel like to explore this a bit more?",
     ]
-    return random.choice(responses)
+    return create_personalized_response(text, mood, context, responses)
 
 
 def classify_mood_from_voice_bytes(data: bytes) -> tuple[str, float, float]:

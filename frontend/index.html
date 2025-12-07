@@ -2,14 +2,137 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Mental Health Companion</title>
+    <title>Innertone - Your Mental Health Companion</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="app">
+    <!-- Landing Page -->
+    <div id="landing-page" class="landing-page">
+      <div class="landing-content">
+        <div class="brand-logo">
+          <h1 class="brand-name">Innertone</h1>
+          <div class="brand-subtitle">Your Mental Health Companion</div>
+        </div>
+        <div class="landing-description">
+          <p class="main-description">
+            A safe, supportive space to explore your thoughts, feelings, and emotions.
+            Connect with an AI companion designed to listen, understand, and guide you
+            on your mental wellness journey.
+          </p>
+          <div class="features">
+            <div class="feature-item">
+              <span class="feature-icon">💬</span>
+              <span>Personalized conversations</span>
+            </div>
+            <div class="feature-item">
+              <span class="feature-icon">🎤</span>
+              <span>Voice mood analysis</span>
+            </div>
+            <div class="feature-item">
+              <span class="feature-icon">🧠</span>
+              <span>Context-aware support</span>
+            </div>
+            <div class="feature-item">
+              <span class="feature-icon">💡</span>
+              <span>Practical tips & guidance</span>
+            </div>
+          </div>
+        </div>
+        <button id="begin-journey-btn" class="begin-journey-btn">
+          Begin Journey
+        </button>
+        <p class="landing-disclaimer">
+          Innertone is not a substitute for professional help or emergency services.
+          If you're in crisis, please contact your local emergency number or a crisis hotline immediately.
+        </p>
+      </div>
+    </div>
+
+    <!-- Welcome Page (hidden initially) -->
+    <div id="welcome-page" class="welcome-page" style="display: none;">
+      <div class="welcome-content">
+        <div class="welcome-header">
+          <h2 class="welcome-title">Welcome to Innertone</h2>
+          <p class="welcome-subtitle">Take a moment to center yourself before we begin</p>
+        </div>
+
+        <button id="start-therapy-btn" class="start-therapy-btn">Start Therapy</button>
+
+        <div class="mind-relief-section">
+          <h3 class="section-title">Mind Relief Activities</h3>
+          
+          <div class="activities-grid">
+            <!-- Breathing Exercise -->
+            <div class="activity-card">
+              <div class="activity-header">
+                <span class="activity-icon">🌬️</span>
+                <h4>Breathing Pattern</h4>
+              </div>
+              <p class="activity-description">Follow the guided breathing exercise to calm your mind</p>
+              <div class="breathing-container">
+                <div id="breathing-circle" class="breathing-circle">
+                  <div class="breathing-inner"></div>
+                </div>
+                <div class="breathing-instructions">
+                  <p id="breathing-text">Click Start to begin</p>
+                  <p class="breathing-count" id="breathing-count"></p>
+                </div>
+              </div>
+              <button id="breathing-btn" class="activity-btn">Start Breathing</button>
+            </div>
+
+            <!-- Nature Sounds -->
+            <div class="activity-card">
+              <div class="activity-header">
+                <span class="activity-icon">🌲</span>
+                <h4>Nature Sounds</h4>
+              </div>
+              <p class="activity-description">Immerse yourself in calming nature sounds</p>
+              <div class="sounds-grid">
+                <div class="sound-item">
+                  <button class="sound-btn" data-sound="forest">
+                    <span class="sound-icon">🌲</span>
+                    <span>Forest</span>
+                  </button>
+                </div>
+                <div class="sound-item">
+                  <button class="sound-btn" data-sound="ocean">
+                    <span class="sound-icon">🌊</span>
+                    <span>Ocean Waves</span>
+                  </button>
+                </div>
+                <div class="sound-item">
+                  <button class="sound-btn" data-sound="rain">
+                    <span class="sound-icon">🌧️</span>
+                    <span>Rain</span>
+                  </button>
+                </div>
+                <div class="sound-item">
+                  <button class="sound-btn" data-sound="birds">
+                    <span class="sound-icon">🐦</span>
+                    <span>Birds</span>
+                  </button>
+                </div>
+              </div>
+              <div class="sound-controls">
+                <input type="range" id="sound-volume" min="0" max="100" value="50" class="volume-slider">
+                <span class="volume-label">Volume: <span id="volume-value">50</span>%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <footer class="welcome-footer">
+          <p>&copy; 2025 Innertone. All rights reserved.</p>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Chatbot Page (hidden initially) -->
+    <div id="chatbot-page" class="app" style="display: none;">
       <header class="app-header">
-        <h1>Mental Health Companion</h1>
+        <h1>Innertone</h1>
         <p class="subtitle">
           A supportive space to reflect on your thoughts and feelings.
         </p>
@@ -22,7 +145,7 @@
             <input
               id="chat-input"
               type="text"
-              placeholder="Share what’s on your mind..."
+              placeholder="Share what's on your mind..."
               autocomplete="off"
             />
             <button type="submit">Send</button>
@@ -37,7 +160,7 @@
         <section class="voice-section" id="voice-section">
           <h2>Voice Mood Check</h2>
           <p class="section-help">
-            Record a short message (10–20 seconds). I’ll listen for energy and
+            Record a short message (10–20 seconds). I'll listen for energy and
             pace to guess your mood.
           </p>
           <div class="voice-controls">
@@ -51,7 +174,7 @@
 
     <script src="script.js"></script>
   </body>
-  </html>
+</html>
 
 
 

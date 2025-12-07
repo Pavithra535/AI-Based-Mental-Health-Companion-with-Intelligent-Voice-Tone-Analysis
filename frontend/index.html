@@ -71,8 +71,11 @@
               </div>
               <p class="activity-description">Follow the guided breathing exercise to calm your mind</p>
               <div class="breathing-container">
-                <div id="breathing-circle" class="breathing-circle">
-                  <div class="breathing-inner"></div>
+                <div id="breathing-waves" class="breathing-waves">
+                  <div class="wave wave-1"></div>
+                  <div class="wave wave-2"></div>
+                  <div class="wave wave-3"></div>
+                  <div class="wave wave-4"></div>
                 </div>
                 <div class="breathing-instructions">
                   <p id="breathing-text">Click Start to begin</p>
@@ -82,42 +85,50 @@
               <button id="breathing-btn" class="activity-btn">Start Breathing</button>
             </div>
 
-            <!-- Nature Sounds -->
+            <!-- Meditation Timer -->
             <div class="activity-card">
               <div class="activity-header">
-                <span class="activity-icon">🌲</span>
-                <h4>Nature Sounds</h4>
+                <span class="activity-icon">🧘</span>
+                <h4>Meditation Timer</h4>
               </div>
-              <p class="activity-description">Immerse yourself in calming nature sounds</p>
-              <div class="sounds-grid">
-                <div class="sound-item">
-                  <button class="sound-btn" data-sound="forest">
-                    <span class="sound-icon">🌲</span>
-                    <span>Forest</span>
-                  </button>
+              <p class="activity-description">Set a timer for your meditation practice</p>
+              <div class="meditation-container">
+                <div class="meditation-timer" id="meditation-timer">00:00</div>
+                <div class="meditation-controls">
+                  <button class="timer-btn" data-time="5">5 min</button>
+                  <button class="timer-btn" data-time="10">10 min</button>
+                  <button class="timer-btn" data-time="15">15 min</button>
+                  <button class="timer-btn" data-time="20">20 min</button>
                 </div>
-                <div class="sound-item">
-                  <button class="sound-btn" data-sound="ocean">
-                    <span class="sound-icon">🌊</span>
-                    <span>Ocean Waves</span>
-                  </button>
-                </div>
-                <div class="sound-item">
-                  <button class="sound-btn" data-sound="rain">
-                    <span class="sound-icon">🌧️</span>
-                    <span>Rain</span>
-                  </button>
-                </div>
-                <div class="sound-item">
-                  <button class="sound-btn" data-sound="birds">
-                    <span class="sound-icon">🐦</span>
-                    <span>Birds</span>
-                  </button>
-                </div>
+                <button id="meditation-start-btn" class="activity-btn">Start</button>
+                <button id="meditation-reset-btn" class="activity-btn" style="display: none; margin-top: 10px;">Reset</button>
               </div>
-              <div class="sound-controls">
-                <input type="range" id="sound-volume" min="0" max="100" value="50" class="volume-slider">
-                <span class="volume-label">Volume: <span id="volume-value">50</span>%</span>
+            </div>
+
+            <!-- Gratitude Journal -->
+            <div class="activity-card">
+              <div class="activity-header">
+                <span class="activity-icon">✨</span>
+                <h4>Gratitude Journal</h4>
+              </div>
+              <p class="activity-description">Write down things you're grateful for today</p>
+              <div class="gratitude-container">
+                <textarea id="gratitude-input" class="gratitude-input" placeholder="What are you grateful for today?"></textarea>
+                <button id="gratitude-add-btn" class="activity-btn">Add to Journal</button>
+                <div class="gratitude-list" id="gratitude-list"></div>
+              </div>
+            </div>
+
+            <!-- Progressive Muscle Relaxation -->
+            <div class="activity-card">
+              <div class="activity-header">
+                <span class="activity-icon">💆</span>
+                <h4>Muscle Relaxation</h4>
+              </div>
+              <p class="activity-description">Follow guided muscle relaxation exercises</p>
+              <div class="relaxation-container">
+                <div id="relaxation-steps"></div>
+                <button id="relaxation-start-btn" class="activity-btn">Start Exercise</button>
               </div>
             </div>
           </div>

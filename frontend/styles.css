@@ -23,7 +23,6 @@ body {
 }
 
 .landing-content {
-  max-width: 700px;
   text-align: center;
   animation: fadeInUp 0.8s ease-out;
 }
@@ -161,7 +160,6 @@ body {
 }
 
 .welcome-content {
-  max-width: 1200px;
   width: 100%;
   animation: fadeInUp 0.8s ease-out;
   display: flex;
@@ -194,6 +192,9 @@ body {
 .mind-relief-section {
   margin-bottom: 40px;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .section-title {
@@ -202,6 +203,7 @@ body {
   margin: 0 0 30px;
   color: #e8ecf8;
   text-align: center;
+  width: 100%;
 }
 
 .activities-grid {
@@ -209,6 +211,7 @@ body {
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
   width: 100%;
+  max-width: 900px;
 }
 
 @media (max-width: 900px) {
@@ -251,7 +254,7 @@ body {
   margin: 0 0 20px;
 }
 
-/* Breathing Exercise */
+/* Breathing Exercise - Wave Animation */
 .breathing-container {
   display: flex;
   flex-direction: column;
@@ -262,83 +265,211 @@ body {
   background: rgba(6, 10, 28, 0.5);
   border-radius: 16px;
   flex: 1;
+  position: relative;
+  min-height: 200px;
+  justify-content: center;
 }
 
-.breathing-circle {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #5876ff, #a05aff);
+.breathing-waves {
+  position: relative;
+  width: 200px;
+  height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  box-shadow: 0 0 40px rgba(88, 118, 255, 0.5);
-  animation: none;
 }
 
-.breathing-inner {
-  width: 100%;
-  height: 100%;
+.wave {
+  position: absolute;
   border-radius: 50%;
-  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.3), transparent);
+  border: 3px solid;
   opacity: 0.6;
+  pointer-events: none;
 }
 
-.breathing-circle.breathing-inhale {
-  animation: breatheIn 4s ease-in forwards;
+.wave-1 {
+  width: 80px;
+  height: 80px;
+  border-color: #5876ff;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.breathing-circle.breathing-hold {
-  animation: breatheHold 4s ease-in-out forwards;
+.wave-2 {
+  width: 120px;
+  height: 120px;
+  border-color: #7a8fff;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.breathing-circle.breathing-exhale {
-  animation: breatheOut 4s ease-out forwards;
+.wave-3 {
+  width: 160px;
+  height: 160px;
+  border-color: #9ca7ff;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.breathing-circle.breathing-pause {
-  animation: breathePause 2s ease-in-out forwards;
+.wave-4 {
+  width: 200px;
+  height: 200px;
+  border-color: #bdc5ff;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-@keyframes breatheIn {
+.breathing-waves.breathing-inhale .wave-1 {
+  animation: waveExpand1 4s ease-in forwards;
+}
+
+.breathing-waves.breathing-inhale .wave-2 {
+  animation: waveExpand2 4s ease-in forwards;
+}
+
+.breathing-waves.breathing-inhale .wave-3 {
+  animation: waveExpand3 4s ease-in forwards;
+}
+
+.breathing-waves.breathing-inhale .wave-4 {
+  animation: waveExpand4 4s ease-in forwards;
+}
+
+.breathing-waves.breathing-hold .wave-1,
+.breathing-waves.breathing-hold .wave-2,
+.breathing-waves.breathing-hold .wave-3,
+.breathing-waves.breathing-hold .wave-4 {
+  animation-play-state: paused;
+}
+
+.breathing-waves.breathing-exhale .wave-1 {
+  animation: waveContract1 4s ease-out forwards;
+}
+
+.breathing-waves.breathing-exhale .wave-2 {
+  animation: waveContract2 4s ease-out forwards;
+}
+
+.breathing-waves.breathing-exhale .wave-3 {
+  animation: waveContract3 4s ease-out forwards;
+}
+
+.breathing-waves.breathing-exhale .wave-4 {
+  animation: waveContract4 4s ease-out forwards;
+}
+
+@keyframes waveExpand1 {
   0% {
-    transform: scale(1);
-    box-shadow: 0 0 40px rgba(88, 118, 255, 0.5);
+    width: 80px;
+    height: 80px;
+    opacity: 0.8;
   }
   100% {
-    transform: scale(1.6);
-    box-shadow: 0 0 60px rgba(88, 118, 255, 0.8);
+    width: 120px;
+    height: 120px;
+    opacity: 0.4;
   }
 }
 
-@keyframes breatheHold {
-  0%, 100% {
-    transform: scale(1.6);
-    box-shadow: 0 0 60px rgba(88, 118, 255, 0.8);
-  }
-}
-
-@keyframes breatheOut {
+@keyframes waveExpand2 {
   0% {
-    transform: scale(1.6);
-    box-shadow: 0 0 60px rgba(88, 118, 255, 0.8);
+    width: 120px;
+    height: 120px;
+    opacity: 0.6;
   }
   100% {
-    transform: scale(1);
-    box-shadow: 0 0 40px rgba(88, 118, 255, 0.5);
+    width: 160px;
+    height: 160px;
+    opacity: 0.3;
   }
 }
 
-@keyframes breathePause {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 40px rgba(88, 118, 255, 0.5);
+@keyframes waveExpand3 {
+  0% {
+    width: 160px;
+    height: 160px;
+    opacity: 0.5;
+  }
+  100% {
+    width: 200px;
+    height: 200px;
+    opacity: 0.2;
+  }
+}
+
+@keyframes waveExpand4 {
+  0% {
+    width: 200px;
+    height: 200px;
+    opacity: 0.4;
+  }
+  100% {
+    width: 240px;
+    height: 240px;
+    opacity: 0.1;
+  }
+}
+
+@keyframes waveContract1 {
+  0% {
+    width: 120px;
+    height: 120px;
+    opacity: 0.4;
+  }
+  100% {
+    width: 80px;
+    height: 80px;
+    opacity: 0.8;
+  }
+}
+
+@keyframes waveContract2 {
+  0% {
+    width: 160px;
+    height: 160px;
+    opacity: 0.3;
+  }
+  100% {
+    width: 120px;
+    height: 120px;
+    opacity: 0.6;
+  }
+}
+
+@keyframes waveContract3 {
+  0% {
+    width: 200px;
+    height: 200px;
+    opacity: 0.2;
+  }
+  100% {
+    width: 160px;
+    height: 160px;
+    opacity: 0.5;
+  }
+}
+
+@keyframes waveContract4 {
+  0% {
+    width: 240px;
+    height: 240px;
+    opacity: 0.1;
+  }
+  100% {
+    width: 200px;
+    height: 200px;
+    opacity: 0.4;
   }
 }
 
 .breathing-instructions {
   text-align: center;
+  z-index: 10;
+  position: relative;
 }
 
 #breathing-text {
@@ -377,103 +508,137 @@ body {
   transform: translateY(0);
 }
 
-/* Nature Sounds */
-.sounds-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-@media (max-width: 600px) {
-  .sounds-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.sound-item {
-  display: flex;
-}
-
-.sound-btn {
-  width: 100%;
-  padding: 16px;
+/* Meditation Timer */
+.meditation-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 20px;
+  margin: 24px 0;
+  padding: 30px;
+  background: rgba(6, 10, 28, 0.5);
+  border-radius: 16px;
+  flex: 1;
+}
+
+.meditation-timer {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #5876ff;
+  text-shadow: 0 0 20px rgba(88, 118, 255, 0.6);
+  margin: 10px 0;
+}
+
+.meditation-controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.timer-btn {
+  padding: 10px 20px;
   border: 2px solid rgba(131, 150, 255, 0.3);
-  border-radius: 12px;
+  border-radius: 8px;
   background: rgba(6, 10, 28, 0.6);
   color: #e8ecf8;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
 }
 
-.sound-btn:hover {
+.timer-btn:hover {
   border-color: rgba(131, 150, 255, 0.6);
-  background: rgba(6, 10, 28, 0.8);
-  transform: translateY(-2px);
-}
-
-.sound-btn.active {
-  border-color: #5876ff;
   background: rgba(88, 118, 255, 0.2);
-  box-shadow: 0 0 20px rgba(88, 118, 255, 0.4);
 }
 
-.sound-icon {
-  font-size: 2rem;
-}
-
-.sound-controls {
+/* Gratitude Journal */
+.gratitude-container {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.volume-slider {
+  flex-direction: column;
+  gap: 16px;
+  margin: 24px 0;
+  padding: 20px;
+  background: rgba(6, 10, 28, 0.5);
+  border-radius: 16px;
   flex: 1;
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(131, 150, 255, 0.2);
+}
+
+.gratitude-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid rgba(131, 150, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(6, 10, 28, 0.8);
+  color: #e8ecf8;
+  font-size: 0.95rem;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+.gratitude-input:focus {
   outline: none;
-  -webkit-appearance: none;
+  border-color: #5876ff;
 }
 
-.volume-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #5876ff;
-  cursor: pointer;
-  box-shadow: 0 0 10px rgba(88, 118, 255, 0.5);
+.gratitude-list {
+  max-height: 150px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.volume-slider::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #5876ff;
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 0 10px rgba(88, 118, 255, 0.5);
-}
-
-.volume-label {
+.gratitude-item {
+  padding: 10px;
+  background: rgba(88, 118, 255, 0.1);
+  border-radius: 8px;
+  border-left: 3px solid #5876ff;
   font-size: 0.9rem;
-  color: #c2cadc;
-  min-width: 100px;
+  color: #d6defa;
+}
+
+/* Progressive Muscle Relaxation */
+.relaxation-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 24px 0;
+  padding: 20px;
+  background: rgba(6, 10, 28, 0.5);
+  border-radius: 16px;
+  flex: 1;
+}
+
+.relaxation-step {
+  padding: 14px;
+  background: rgba(88, 118, 255, 0.1);
+  border-radius: 10px;
+  border-left: 4px solid #5876ff;
+  font-size: 0.95rem;
+  color: #d6defa;
+  transition: all 0.3s ease;
+}
+
+.relaxation-step.active {
+  background: rgba(88, 118, 255, 0.25);
+  border-left-color: #a05aff;
+  box-shadow: 0 0 15px rgba(88, 118, 255, 0.3);
+  transform: translateX(5px);
+}
+
+.relaxation-step-number {
+  font-weight: 600;
+  color: #5876ff;
+  margin-right: 8px;
 }
 
 .start-therapy-btn {
   width: 100%;
   max-width: 400px;
+  justify-content: center;
   padding: 18px;
   font-size: 1.2rem;
   font-weight: 600;
@@ -485,8 +650,9 @@ body {
   box-shadow: 0 12px 30px rgba(88, 118, 255, 0.5);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   letter-spacing: 0.02em;
-  margin: 0 auto 40px;
-  display: block;
+  margin: 0 40px 40px;
+  display: relative;
+  right: 100px;
 }
 
 .start-therapy-btn:hover {
@@ -499,11 +665,13 @@ body {
 }
 
 .welcome-footer {
-  text-align: center;
+  text-align: right;
   padding-top: 20px;
   border-top: 1px solid rgba(131, 150, 255, 0.2);
   width: 100%;
+  max-width: 900px;
   margin-top: auto;
+  align-self: flex-end;
 }
 
 .welcome-footer p {

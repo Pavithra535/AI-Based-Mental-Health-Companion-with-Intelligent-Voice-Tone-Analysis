@@ -9,12 +9,18 @@ const startTherapyBtn = document.getElementById("start-therapy-btn");
 
 // Activity elements
 const breathingBtn = document.getElementById("breathing-btn");
-const breathingCircle = document.getElementById("breathing-circle");
+const breathingWaves = document.getElementById("breathing-waves");
 const breathingText = document.getElementById("breathing-text");
 const breathingCount = document.getElementById("breathing-count");
-const soundButtons = document.querySelectorAll(".sound-btn");
-const soundVolume = document.getElementById("sound-volume");
-const volumeValue = document.getElementById("volume-value");
+const meditationTimer = document.getElementById("meditation-timer");
+const meditationStartBtn = document.getElementById("meditation-start-btn");
+const meditationResetBtn = document.getElementById("meditation-reset-btn");
+const timerButtons = document.querySelectorAll(".timer-btn");
+const gratitudeInput = document.getElementById("gratitude-input");
+const gratitudeAddBtn = document.getElementById("gratitude-add-btn");
+const gratitudeList = document.getElementById("gratitude-list");
+const relaxationStartBtn = document.getElementById("relaxation-start-btn");
+const relaxationSteps = document.getElementById("relaxation-steps");
 
 // Chat elements
 const chatForm = document.getElementById("chat-form");
@@ -32,11 +38,12 @@ let audioChunks = [];
 // Track conversation history for context awareness
 let conversationHistory = [];
 
-// Audio context for nature sounds
-let audioContext = null;
-let currentSound = null;
 let isBreathingActive = false;
 let breathingInterval = null;
+let meditationInterval = null;
+let meditationTimeLeft = 0;
+let relaxationActive = false;
+let currentRelaxationStep = 0;
 
 // Navigation: Show welcome page when "Begin Journey" is clicked
 beginJourneyBtn.addEventListener("click", () => {
@@ -48,8 +55,10 @@ beginJourneyBtn.addEventListener("click", () => {
 startTherapyBtn.addEventListener("click", () => {
   welcomePage.style.display = "none";
   chatbotPage.style.display = "block";
-  // Stop any active sounds
-  stopAllSounds();
+  // Stop any active activities
+  stopBreathing();
+  stopMeditation();
+  stopRelaxation();
   // Focus on chat input when page loads
   setTimeout(() => {
     chatInput.focus();
@@ -78,28 +87,28 @@ function startBreathing() {
     
     // Inhale
     breathingText.textContent = "Breathe In...";
-    breathingCircle.className = "breathing-circle breathing-inhale";
+    breathingWaves.className = "breathing-waves breathing-inhale";
     
     setTimeout(() => {
       if (!isBreathingActive) return;
       
       // Hold
       breathingText.textContent = "Hold...";
-      breathingCircle.className = "breathing-circle breathing-hold";
+      breathingWaves.className = "breathing-waves breathing-hold";
       
       setTimeout(() => {
         if (!isBreathingActive) return;
         
         // Exhale
         breathingText.textContent = "Breathe Out...";
-        breathingCircle.className = "breathing-circle breathing-exhale";
+        breathingWaves.className = "breathing-waves breathing-exhale";
         
         setTimeout(() => {
           if (!isBreathingActive) return;
           
           // Pause
           breathingText.textContent = "Pause...";
-          breathingCircle.className = "breathing-circle breathing-pause";
+          breathingWaves.className = "breathing-waves";
           
           setTimeout(() => {
             if (!isBreathingActive) return;
@@ -118,230 +127,181 @@ function stopBreathing() {
   breathingBtn.textContent = "Start Breathing";
   breathingText.textContent = "Click Start to begin";
   breathingCount.textContent = "";
-  breathingCircle.className = "breathing-circle";
+  breathingWaves.className = "breathing-waves";
   if (breathingInterval) {
     clearInterval(breathingInterval);
     breathingInterval = null;
   }
 }
 
-// Nature Sounds
-soundButtons.forEach(btn => {
+// Meditation Timer
+timerButtons.forEach(btn => {
   btn.addEventListener("click", () => {
-    const soundType = btn.dataset.sound;
-    
-    // Toggle active state
-    if (btn.classList.contains("active")) {
-      stopSound();
-      btn.classList.remove("active");
-    } else {
-      // Remove active from all buttons
-      soundButtons.forEach(b => b.classList.remove("active"));
-      // Start new sound
-      startSound(soundType);
-      btn.classList.add("active");
-    }
+    const minutes = parseInt(btn.dataset.time);
+    meditationTimeLeft = minutes * 60;
+    updateMeditationTimer();
+    meditationResetBtn.style.display = "block";
   });
 });
 
-// Volume control
-soundVolume.addEventListener("input", (e) => {
-  const volume = e.target.value;
-  volumeValue.textContent = volume;
-  if (currentSound && currentSound.gainNode) {
-    currentSound.gainNode.gain.value = volume / 100;
+meditationStartBtn.addEventListener("click", () => {
+  if (meditationInterval) {
+    stopMeditation();
+  } else {
+    startMeditation();
   }
 });
 
-function startSound(type) {
-  stopSound(); // Stop any existing sound
-  
-  if (!audioContext) {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  
-  const masterGain = audioContext.createGain();
-  masterGain.connect(audioContext.destination);
-  masterGain.gain.value = soundVolume.value / 100;
-  
-  const components = [];
-  let variationInterval;
-  
-  switch(type) {
-    case "forest":
-      // Forest: Wind through trees (low rumble) + rustling leaves (mid-high noise)
-      const forestWind = createNoiseGenerator(audioContext, 0.15, 50, 200);
-      const forestRustle = createNoiseGenerator(audioContext, 0.2, 500, 2000);
-      const forestLow = createOscillator(audioContext, 80, "sine", 0.1, masterGain);
-      
-      forestWind.connect(masterGain);
-      forestRustle.connect(masterGain);
-      forestLow.connect(masterGain);
-      
-      components.push(forestWind, forestRustle, forestLow);
-      
-      // Add occasional bird-like chirps
-      variationInterval = setInterval(() => {
-        if (Math.random() > 0.7) {
-          const chirp = createOscillator(audioContext, 800 + Math.random() * 400, "sine", 0.15, masterGain);
-          chirp.start();
-          chirp.stop(audioContext.currentTime + 0.3);
-        }
-      }, 2000);
-      break;
-      
-    case "ocean":
-      // Ocean: Deep wave rumble + white noise for foam + periodic wave crashes
-      const oceanRumble = createOscillator(audioContext, 40, "sine", 0.3, masterGain);
-      const oceanNoise = createNoiseGenerator(audioContext, 0.25, 100, 800);
-      const oceanMid = createOscillator(audioContext, 60, "sine", 0.2, masterGain);
-      
-      oceanRumble.connect(masterGain);
-      oceanNoise.connect(masterGain);
-      oceanMid.connect(masterGain);
-      
-      components.push(oceanRumble, oceanNoise, oceanMid);
-      
-      // Wave crash effect
-      variationInterval = setInterval(() => {
-        const crash = createNoiseGenerator(audioContext, 0.4, 200, 3000);
-        crash.connect(masterGain);
-        setTimeout(() => {
-          if (crash.stop) crash.stop();
-        }, 800);
-      }, 4000);
-      break;
-      
-    case "rain":
-      // Rain: High-frequency white noise with variation
-      const rainMain = createNoiseGenerator(audioContext, 0.3, 2000, 8000);
-      const rainDrops = createNoiseGenerator(audioContext, 0.2, 5000, 12000);
-      const rainAmbient = createNoiseGenerator(audioContext, 0.15, 1000, 4000);
-      
-      rainMain.connect(masterGain);
-      rainDrops.connect(masterGain);
-      rainAmbient.connect(masterGain);
-      
-      components.push(rainMain, rainDrops, rainAmbient);
-      break;
-      
-    case "birds":
-      // Birds: Multiple oscillators with varying frequencies and timing
-      const bird1 = createOscillator(audioContext, 1200, "sine", 0.2, masterGain);
-      const bird2 = createOscillator(audioContext, 1500, "sine", 0.15, masterGain);
-      const bird3 = createOscillator(audioContext, 1800, "sine", 0.18, masterGain);
-      
-      bird1.connect(masterGain);
-      bird2.connect(masterGain);
-      bird3.connect(masterGain);
-      
-      components.push(bird1, bird2, bird3);
-      
-      // Vary bird frequencies to create chirping effect
-      variationInterval = setInterval(() => {
-        if (bird1 && bird1.frequency) {
-          bird1.frequency.setValueAtTime(1000 + Math.random() * 600, audioContext.currentTime);
-        }
-        if (bird2 && bird2.frequency) {
-          bird2.frequency.setValueAtTime(1300 + Math.random() * 500, audioContext.currentTime);
-        }
-        if (bird3 && bird3.frequency) {
-          bird3.frequency.setValueAtTime(1600 + Math.random() * 400, audioContext.currentTime);
-        }
-      }, 500);
-      
-      // Add occasional chirps
-      const chirpInterval = setInterval(() => {
-        if (Math.random() > 0.5) {
-          const chirp = createOscillator(audioContext, 2000 + Math.random() * 1000, "sine", 0.25, masterGain);
-          chirp.start();
-          chirp.stop(audioContext.currentTime + 0.2 + Math.random() * 0.3);
-        }
-      }, 1500);
-      if (variationInterval) {
-        components.push({ stop: () => clearInterval(chirpInterval) });
-      }
-      break;
-  }
-  
-  currentSound = { 
-    gainNode: masterGain, 
-    components: components.filter(Boolean),
-    variationInterval 
-  };
-}
+meditationResetBtn.addEventListener("click", () => {
+  stopMeditation();
+  meditationTimeLeft = 0;
+  updateMeditationTimer();
+  meditationResetBtn.style.display = "none";
+});
 
-function createOscillator(audioContext, freq, type, volume, output) {
-  const osc = audioContext.createOscillator();
-  const gain = audioContext.createGain();
-  osc.type = type;
-  osc.frequency.value = freq;
-  gain.gain.value = volume;
-  osc.connect(gain);
-  gain.connect(output);
-  osc.start();
-  return osc;
-}
-
-function createNoiseGenerator(audioContext, volume, lowFreq, highFreq) {
-  const bufferSize = audioContext.sampleRate * 2;
-  const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-  const data = buffer.getChannelData(0);
-  
-  for (let i = 0; i < bufferSize; i++) {
-    data[i] = Math.random() * 2 - 1;
+function startMeditation() {
+  if (meditationTimeLeft === 0) {
+    alert("Please select a duration first");
+    return;
   }
-  
-  const noise = audioContext.createBufferSource();
-  noise.buffer = buffer;
-  noise.loop = true;
-  
-  // Filter to shape the noise
-  const filter = audioContext.createBiquadFilter();
-  filter.type = "bandpass";
-  filter.frequency.value = (lowFreq + highFreq) / 2;
-  filter.Q.value = 1;
-  
-  const gain = audioContext.createGain();
-  gain.gain.value = volume;
-  
-  noise.connect(filter);
-  filter.connect(gain);
-  
-  noise.start();
-  
-  return {
-    connect: (destination) => gain.connect(destination),
-    stop: () => {
-      noise.stop();
-      if (filter.disconnect) filter.disconnect();
-      if (gain.disconnect) gain.disconnect();
+  meditationStartBtn.textContent = "Pause";
+  meditationInterval = setInterval(() => {
+    if (meditationTimeLeft > 0) {
+      meditationTimeLeft--;
+      updateMeditationTimer();
+    } else {
+      stopMeditation();
+      alert("Meditation session complete! 🧘");
     }
-  };
+  }, 1000);
 }
 
-function stopSound() {
-  if (currentSound) {
-    currentSound.components.forEach(component => {
-      if (component && component.stop) {
-        component.stop();
-      } else if (component && component.disconnect) {
-        component.disconnect();
-      }
+function stopMeditation() {
+  if (meditationInterval) {
+    clearInterval(meditationInterval);
+    meditationInterval = null;
+  }
+  meditationStartBtn.textContent = "Start";
+}
+
+function updateMeditationTimer() {
+  const minutes = Math.floor(meditationTimeLeft / 60);
+  const seconds = meditationTimeLeft % 60;
+  meditationTimer.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+// Gratitude Journal
+let gratitudeEntries = JSON.parse(localStorage.getItem('gratitudeEntries') || '[]');
+renderGratitudeList();
+
+gratitudeAddBtn.addEventListener("click", () => {
+  const text = gratitudeInput.value.trim();
+  if (text) {
+    gratitudeEntries.push({
+      text: text,
+      date: new Date().toLocaleDateString()
     });
-    if (currentSound.variationInterval) {
-      clearInterval(currentSound.variationInterval);
-    }
-    if (currentSound.gainNode) {
-      currentSound.gainNode.disconnect();
-    }
-    currentSound = null;
+    localStorage.setItem('gratitudeEntries', JSON.stringify(gratitudeEntries));
+    gratitudeInput.value = "";
+    renderGratitudeList();
+  }
+});
+
+gratitudeInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    gratitudeAddBtn.click();
+  }
+});
+
+function renderGratitudeList() {
+  gratitudeList.innerHTML = "";
+  const recentEntries = gratitudeEntries.slice(-5).reverse();
+  recentEntries.forEach(entry => {
+    const item = document.createElement("div");
+    item.className = "gratitude-item";
+    item.textContent = entry.text;
+    gratitudeList.appendChild(item);
+  });
+  if (gratitudeEntries.length === 0) {
+    gratitudeList.innerHTML = '<div style="color: #949fc5; font-style: italic; text-align: center; padding: 20px;">No entries yet. Start by adding something you\'re grateful for!</div>';
   }
 }
 
-function stopAllSounds() {
-  stopSound();
-  stopBreathing();
+// Progressive Muscle Relaxation
+const relaxationStepsList = [
+  "Tense your feet for 5 seconds, then release",
+  "Tense your calves and thighs for 5 seconds, then release",
+  "Tense your hands and arms for 5 seconds, then release",
+  "Tense your shoulders and neck for 5 seconds, then release",
+  "Tense your face and jaw for 5 seconds, then release",
+  "Take a deep breath and relax completely"
+];
+
+function renderRelaxationSteps() {
+  relaxationSteps.innerHTML = "";
+  relaxationStepsList.forEach((step, index) => {
+    const stepDiv = document.createElement("div");
+    stepDiv.className = "relaxation-step";
+    stepDiv.id = `relaxation-step-${index}`;
+    stepDiv.innerHTML = `<span class="relaxation-step-number">${index + 1}.</span>${step}`;
+    relaxationSteps.appendChild(stepDiv);
+  });
+}
+
+renderRelaxationSteps();
+
+relaxationStartBtn.addEventListener("click", () => {
+  if (relaxationActive) {
+    stopRelaxation();
+  } else {
+    startRelaxation();
+  }
+});
+
+function startRelaxation() {
+  relaxationActive = true;
+  currentRelaxationStep = 0;
+  relaxationStartBtn.textContent = "Stop Exercise";
+  runRelaxationStep();
+}
+
+function stopRelaxation() {
+  relaxationActive = false;
+  relaxationStartBtn.textContent = "Start Exercise";
+  document.querySelectorAll(".relaxation-step").forEach(step => {
+    step.classList.remove("active");
+  });
+  currentRelaxationStep = 0;
+}
+
+function runRelaxationStep() {
+  if (!relaxationActive) return;
+  
+  // Remove active from all steps
+  document.querySelectorAll(".relaxation-step").forEach(step => {
+    step.classList.remove("active");
+  });
+  
+  if (currentRelaxationStep < relaxationStepsList.length) {
+    const currentStepEl = document.getElementById(`relaxation-step-${currentRelaxationStep}`);
+    if (currentStepEl) {
+      currentStepEl.classList.add("active");
+    }
+    
+    setTimeout(() => {
+      if (!relaxationActive) return;
+      currentRelaxationStep++;
+      if (currentRelaxationStep < relaxationStepsList.length) {
+        runRelaxationStep();
+      } else {
+        setTimeout(() => {
+          stopRelaxation();
+          alert("Relaxation exercise complete! 💆");
+        }, 5000);
+      }
+    }, 7000); // 5 seconds tense + 2 seconds transition
+  }
 }
 
 function appendMessage(role, text, meta) {

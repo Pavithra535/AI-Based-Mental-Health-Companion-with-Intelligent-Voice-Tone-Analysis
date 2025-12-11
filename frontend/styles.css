@@ -598,6 +598,48 @@ body {
   border-left: 3px solid #5876ff;
   font-size: 0.9rem;
   color: #d6defa;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: background-color 0.2s ease;
+}
+
+.gratitude-item:hover {
+  background: rgba(88, 118, 255, 0.15);
+}
+
+.gratitude-item-text {
+  flex: 1;
+  word-wrap: break-word;
+}
+
+.gratitude-delete-btn {
+  background: rgba(255, 107, 157, 0.2);
+  border: 1px solid rgba(255, 107, 157, 0.4);
+  color: #ff6b9d;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.gratitude-delete-btn:hover {
+  background: rgba(255, 107, 157, 0.3);
+  border-color: #ff6b9d;
+  transform: scale(1.1);
+}
+
+.gratitude-delete-btn:active {
+  transform: scale(0.95);
 }
 
 /* Progressive Muscle Relaxation */
@@ -665,11 +707,10 @@ body {
 }
 
 .welcome-footer {
-  text-align: right;
+  text-align: center;
   padding-top: 20px;
   border-top: 1px solid rgba(131, 150, 255, 0.2);
   width: 100%;
-  max-width: 900px;
   margin-top: auto;
   align-self: flex-end;
 }

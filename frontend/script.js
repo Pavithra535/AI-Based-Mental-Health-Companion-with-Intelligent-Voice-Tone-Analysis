@@ -217,10 +217,28 @@ gratitudeInput.addEventListener("keypress", (e) => {
 function renderGratitudeList() {
   gratitudeList.innerHTML = "";
   const recentEntries = gratitudeEntries.slice(-5).reverse();
-  recentEntries.forEach(entry => {
+  recentEntries.forEach((entry, index) => {
     const item = document.createElement("div");
     item.className = "gratitude-item";
-    item.textContent = entry.text;
+    
+    const textDiv = document.createElement("div");
+    textDiv.className = "gratitude-item-text";
+    textDiv.textContent = entry.text;
+    
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "gratitude-delete-btn";
+    deleteBtn.innerHTML = "×";
+    deleteBtn.title = "Delete entry";
+    deleteBtn.addEventListener("click", () => {
+      // Find the original index (since we reversed the array)
+      const originalIndex = gratitudeEntries.length - 1 - index;
+      gratitudeEntries.splice(originalIndex, 1);
+      localStorage.setItem('gratitudeEntries', JSON.stringify(gratitudeEntries));
+      renderGratitudeList();
+    });
+    
+    item.appendChild(textDiv);
+    item.appendChild(deleteBtn);
     gratitudeList.appendChild(item);
   });
   if (gratitudeEntries.length === 0) {
